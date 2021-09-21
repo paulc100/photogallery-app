@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat; import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int SEARCH_ACTIVITY_REQUEST_CODE = 2;
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private void updatePhoto(String path, String caption) {
         String[] attr = path.split("_");
         if (attr.length >= 3) {
-            String newCaption = attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3]+ "_";
+            String newCaption = attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3] + "_";
             File to = new File(newCaption);
             File from = new File(path);
             from.renameTo(to);
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                DateFormat format = new SimpleDateFormat("yyyy-MM‐dd HH:mm:ss");
+                DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date startTimestamp, endTimestamp;
                 try {
                     String from = (String) data.getStringExtra("STARTTIMESTAMP");

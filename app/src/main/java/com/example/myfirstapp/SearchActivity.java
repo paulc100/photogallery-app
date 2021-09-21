@@ -1,6 +1,7 @@
 package com.example.myfirstapp;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent; import android.os.Bundle;
+import android.text.Editable;
 import android.view.View; import android.widget.EditText;
 import java.text.DateFormat; import java.text.SimpleDateFormat;
 import java.util.Calendar; import java.util.Date;
@@ -12,17 +13,17 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search);
         try {
             Calendar calendar = Calendar.getInstance();
-            DateFormat format = new SimpleDateFormat("yyyy‐MM‐dd");
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             Date now = calendar.getTime();
-            String todayStr = new SimpleDateFormat("yyyy‐MM‐dd", Locale.getDefault()).format(now);
+            String todayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(now);
             Date today = format.parse((String) todayStr);
             calendar.add(Calendar.DAY_OF_YEAR, 1);
-            String tomorrowStr = new SimpleDateFormat("yyyy‐MM‐dd", Locale.getDefault()).format( calendar.getTime());
+            String tomorrowStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format( calendar.getTime());
             Date tomorrow = format.parse((String) tomorrowStr);
             ((EditText) findViewById(R.id.etFromDateTime)).setText(new SimpleDateFormat(
-                    "yyyy‐MM‐dd HH:mm:ss", Locale.getDefault()).format(today));
+                    "yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(today));
             ((EditText) findViewById(R.id.etToDateTime)).setText(new SimpleDateFormat(
-                    "yyyy‐MM‐dd HH:mm:ss", Locale.getDefault()).format(tomorrow));
+                    "yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(tomorrow));
         } catch (Exception ex) { }
     }
     public void cancel(final View v) {
