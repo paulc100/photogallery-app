@@ -5,14 +5,20 @@
     android:id="@+id/constraintLayoutLayout"
     android:layout_width="match_parent"  android:layout_height="match_parent"
     tools:context=".MainActivity">
+
     <ImageView
         android:id="@+id/ivGallery"
-        android:layout_width="356dp" android:layout_height="265dp"
-        android:layout_marginStart="23dp" android:layout_marginTop="39dp"
-        android:layout_marginEnd="32dp" android:layout_marginBottom="39dp"
+        android:layout_width="356dp"
+        android:layout_height="265dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="39dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="39dp"
         app:layout_constraintBottom_toTopOf="@+id/location"
-        app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" app:srcCompat="@drawable/ic_launcher_foreground" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_launcher_foreground" />
     <Button
         android:id="@+id/snap"
         android:layout_width="85dp"  android:layout_height="60dp"
@@ -60,4 +66,15 @@
         android:layout_alignStart="@+id/ivGallery" android:layout_alignParentBottom="true"
         android:layout_marginBottom="18dp" android:text="search" android:onClick="searchPhotos"
         tools:layout_editor_absoluteX="291dp" tools:layout_editor_absoluteY="635dp" />
+
+    <Button
+        android:id="@+id/btnShare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnSearch"
+        android:layout_alignEnd="@+id/btnSearch"
+        android:layout_marginEnd="-91dp"
+        android:layout_marginBottom="-48dp"
+        android:text="Share"
+        android:onClick="sharePhoto"/>
 </RelativeLayout>

@@ -1,6 +1,8 @@
 package com.example.myfirstapp;
 import androidx.appcompat.app.AppCompatActivity; import androidx.core.content.FileProvider;
-import android.content.Intent; import android.graphics.BitmapFactory;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri; import android.os.Bundle; import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -32,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     }
     public void takePhoto(View v) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+        if (takePictureIntent.resolveActivity(getPackageManager()) == null) {
             File photoFile = null;
             try {
                 photoFile = createImageFile();
@@ -150,5 +152,19 @@ public class MainActivity extends AppCompatActivity {
     public void searchPhotos(View view) {
         Intent intent = new Intent (this, SearchActivity.class);
         startActivityForResult(intent, SEARCH_ACTIVITY_REQUEST_CODE);
+    }
+
+    public void sharePhoto(View view) {
+        String path = photos.get(index);
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("image/jpeg");
+        share.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        Uri uri = FileProvider.getUriForFile(this, "com.example.myfirstapp.fileprovider", new File(path));
+        share.putExtra(Intent.EXTRA_STREAM, uri);
+        try{
+            startActivity(Intent.createChooser(share, "Share Image"));
+        } catch(Exception e){
+            String msg = e.toString();
+        }
     }
 }
