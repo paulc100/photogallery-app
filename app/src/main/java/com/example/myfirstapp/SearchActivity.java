@@ -2,7 +2,13 @@ package com.example.myfirstapp;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent; import android.os.Bundle;
 import android.text.Editable;
-import android.view.View; import android.widget.EditText;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
 import java.text.DateFormat; import java.text.SimpleDateFormat;
 import java.util.Calendar; import java.util.Date;
 import java.util.Locale;
@@ -24,6 +30,18 @@ public class SearchActivity extends AppCompatActivity {
                     "yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(today));
             ((EditText) findViewById(R.id.etToDateTime)).setText(new SimpleDateFormat(
                     "yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(tomorrow));
+
+            ((EditText) findViewById(R.id.etKeywords)).setOnEditorActionListener(new EditText.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        ((Button) findViewById(R.id.go)).performClick();
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
         } catch (Exception ex) { }
     }
     public void cancel(final View v) {

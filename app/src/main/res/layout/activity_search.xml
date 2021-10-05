@@ -14,7 +14,8 @@
         android:id="@+id/etFromDateTime" android:inputType="date"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_alignParentEnd="true" android:layout_alignParentTop="true"
-        android:layout_marginTop="38dp" android:ems="10" android:textSize="24sp" />
+        android:layout_marginTop="38dp" android:ems="10" android:textSize="24sp"
+        />
     <TextView
         android:id="@+id/tvToDateTime"  android:text="To: "
         android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -34,8 +35,8 @@
     <EditText
         android:id="@+id/etKeywords" android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:layout_alignStart="@+id/go"
-        android:layout_centerVertical="true" android:ems="10"
-        android:textSize="24sp" />
+        android:layout_centerVertical="true" android:ems="10" android:singleLine="true"
+        android:textSize="24sp" android:imeOptions="actionDone" />
     <TextView
         android:id="@+id/tvLocation" android:text="City: "
         android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -44,7 +45,7 @@
     <EditText
         android:id="@+id/etLocation"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/tvLocation" android:layout_alignParentEnd="true"
+        android:layout_alignBaseline="@+id/tvLocation" android:singleLine="true" android:layout_alignParentEnd="true"
         android:layout_marginEnd="31dp" android:ems="10"
         android:textSize="24sp" />
     <Button
