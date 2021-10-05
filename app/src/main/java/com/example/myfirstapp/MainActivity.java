@@ -297,16 +297,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sharePhoto(View view) {
-        String path = photos.get(index);
-        Intent share = new Intent(Intent.ACTION_SEND);
-        share.setType("image/jpeg");
-        share.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        Uri uri = FileProvider.getUriForFile(this, "com.example.myfirstapp.fileprovider", new File(path));
-        share.putExtra(Intent.EXTRA_STREAM, uri);
-        try{
-            startActivity(Intent.createChooser(share, "Share Image"));
-        } catch(Exception e){
-            String msg = e.toString();
+
+        if(photos.size() > 0) {
+
+            String path = photos.get(index);
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setType("image/jpeg");
+            share.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Uri uri = FileProvider.getUriForFile(this, "com.example.myfirstapp.fileprovider", new File(path));
+            share.putExtra(Intent.EXTRA_STREAM, uri);
+            try {
+                startActivity(Intent.createChooser(share, "Share Image"));
+            } catch (Exception e) {
+                String msg = e.toString();
+            }
         }
     }
 
