@@ -1,5 +1,7 @@
 package com.example.myfirstapp;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 
 import java.io.File;
@@ -7,25 +9,32 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class PhotoFileModel {
-    public File file;
     public String path;
 
     public String[] getAttributes(){
         return path.split("_");
     }
 
+    public Bitmap getBitmap(){
+        return BitmapFactory.decodeFile(path);
+    }
+
+    public PhotoFileModel(String path){
+        this.path = path;
+    }
+
     //This can be replaced with the creational design pattern
-    public static ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords, String location) {
+    public static ArrayList<PhotoFileModel> findPhotos(Date startTimestamp, Date endTimestamp, String keywords, String location) {
         File file = new File(Environment.getExternalStorageDirectory()
                 .getAbsolutePath(), "/Android/data/com.example.myfirstapp/files/Pictures");
-        ArrayList<String> photos = new ArrayList<String>();
+        ArrayList<PhotoFileModel> photos = new ArrayList<PhotoFileModel>();
         File[] fList = file.listFiles();
         if (fList != null) {
             for (File f : fList) {
                 if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= startTimestamp.getTime()
                         && f.lastModified() <= endTimestamp.getTime())
                 ) && (keywords == "" || f.getPath().contains(keywords))&& (location == "" || f.getPath().contains(location)))
-                    photos.add(f.getPath());
+                    photos.add(new PhotoFileModel(f.getPath()));
             }
         }
         return photos;

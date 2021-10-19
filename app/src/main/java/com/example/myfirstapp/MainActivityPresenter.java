@@ -39,7 +39,7 @@ import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
 public class MainActivityPresenter {
-    private ArrayList<String> photos = null; //Model
+    private ArrayList<PhotoFileModel> photos = null; //Model
     private MainActivityView view;
     private int index = 0;
     private String mPhotoCity;
@@ -58,11 +58,8 @@ public class MainActivityPresenter {
         if (photos.size() == 0) {
             view.displayPhoto(null, null);
         } else {
-            String path = photos.get(index);
-            String[] attr = path.split("_");
-            view.displayPhoto(BitmapFactory.decodeFile(path), attr);
-
-
+            PhotoFileModel photo = photos.get(index);
+            view.displayPhoto(photo.getBitmap(), photo.getAttributes());
         }
         //this.stream = load all photos from device
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(view.getContext());
@@ -86,6 +83,7 @@ public class MainActivityPresenter {
         //}
     }
 
+    //Probably also part of the creational pattern
     public void saveNewPhoto(){
         String[] attr = mCurrentPhotoPath.split("_");
         view.displayPhoto(BitmapFactory.decodeFile(mCurrentPhotoPath), attr);
@@ -111,7 +109,8 @@ public class MainActivityPresenter {
     }
 
     public void updatePhoto(String caption) {
-        String path = photos.get(index);
+        PhotoFileModel photo = photos.get(index);
+        String path = photo.path;
         String[] attr = path.split("_");
         if (attr.length >= 3) {
             String newCaption;
@@ -123,7 +122,7 @@ public class MainActivityPresenter {
             File to = new File(newCaption);
             File from = new File(path);
             from.renameTo(to);
-            photos.set(photos.indexOf(path),newCaption);
+            photo.path = newCaption;
         }
     }
 
@@ -131,7 +130,7 @@ public class MainActivityPresenter {
 
         if(photos.size() > 0) {
 
-            String path = photos.get(index);
+            String path = photos.get(index).path;
             Intent share = new Intent(Intent.ACTION_SEND);
             share.setType("image/jpeg");
             share.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -153,9 +152,8 @@ public class MainActivityPresenter {
                     index--;
                 }
             }
-            String path = photos.get(index);
-            String[] attr = path.split("_");
-            view.displayPhoto(BitmapFactory.decodeFile(path), attr);
+            PhotoFileModel photo = photos.get(index);
+            view.displayPhoto(photo.getBitmap(), photo.getAttributes());
         }
     }
 
@@ -178,9 +176,8 @@ public class MainActivityPresenter {
         if (photos.size() == 0) {
             view.displayPhoto(null, null);
         } else {
-            String path = photos.get(index);
-            String[] attr = path.split("_");
-            view.displayPhoto(BitmapFactory.decodeFile(path), attr);
+            PhotoFileModel photo = photos.get(index);
+            view.displayPhoto(photo.getBitmap(), photo.getAttributes());
         }
     }
 
