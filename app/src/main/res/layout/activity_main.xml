@@ -28,7 +28,7 @@
         android:layout_marginStart="56dp"
         android:layout_marginEnd="194dp"
         android:layout_marginBottom="203dp"
-        android:onClick="takePhoto"
+        android:onClick="onTakePhoto"
         android:text="snap" />
 
     <Button
@@ -40,7 +40,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginStart="35dp"
         android:layout_marginBottom="137dp"
-        android:onClick="searchPhotos"
+        android:onClick="onSearchPhotos"
         android:text="search"
         tools:layout_editor_absoluteX="291dp"
         tools:layout_editor_absoluteY="635dp" />
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/snap"
         android:layout_marginStart="240dp"
-        android:onClick="scrollPhotos"
+        android:onClick="onScrollPhotos"
         android:text="next" />
 
     <Button
@@ -64,7 +64,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="83dp"
         android:layout_marginBottom="137dp"
-        android:onClick="scrollPhotos"
+        android:onClick="onScrollPhotos"
         android:text="prev"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="622dp" />
@@ -108,6 +108,8 @@
         android:ems="10"
         android:inputType="textPersonName"
         android:text=""
+        android:singleLine="true"
+        android:imeOptions="actionDone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="0dp" />
@@ -121,6 +123,6 @@
         android:layout_alignEnd="@+id/snap"
         android:layout_marginEnd="-110dp"
         android:layout_marginBottom="-175dp"
-        android:onClick="sharePhoto"
+        android:onClick="onSharePhoto"
         android:text="Share" />
 </RelativeLayout>

@@ -1,9 +1,12 @@
 package com.example.myfirstapp;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
@@ -15,7 +18,10 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,36 +46,31 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainActivityPresenter.MainActivityView{
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int SEARCH_ACTIVITY_REQUEST_CODE = 2;
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private String mPhotoCity;
-
-    String mCurrentPhotoPath;
-    private ArrayList<String> photos = null;
-    private int index = 0;
-
-    protected Location mLastLocation;
-    private double mLatitude;
-    private double mLongitude;
-
-    private FusedLocationProviderClient fusedLocationClient;
+    private MainActivityPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
-        if (photos.size() == 0) {
-            displayPhoto(null);
-        } else {
-            displayPhoto(photos.get(index));
-        }
+        this.presenter = new MainActivityPresenter(this);
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        //Updates photo when done action is taken on the caption text
+        ((EditText) findViewById(R.id.etCaption)).setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    presenter.updatePhoto(v.toString());
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override
@@ -79,133 +80,64 @@ public class MainActivity extends AppCompatActivity {
         if (!checkPermissions()) {
             requestPermissions();
         } else {
-            getLastLocation();
+            try{
+                presenter.getLastLocation();
+            } catch(Exception e){
+                String msg = e.toString();
+            }
+
         }
     }
 
-    public void takePhoto(View v) {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        //if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this, "com.example.myfirstapp.fileprovider", photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            }
-        //}
+    public void onScrollPhotos(View v) {
+        presenter.scrollPhotos(v.getId() == R.id.btnNext);
     }
-    private void updatePhoto(String path, String caption) {
-        String[] attr = path.split("_");
-        if (attr.length >= 3) {
-            String newCaption;
-            if (mLastLocation != null) {
-                newCaption = attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3] + "_" + attr[4] + "_";
-            } else {
-                newCaption = attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3] + "_" + "NoLocation" + "_";
-            }
-            File to = new File(newCaption);
-            File from = new File(path);
-            from.renameTo(to);
-            photos.set(photos.indexOf(path),newCaption);
-        }
-    }
-    private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords, String location) {
-        File file = new File(Environment.getExternalStorageDirectory()
-                .getAbsolutePath(), "/Android/data/com.example.myfirstapp/files/Pictures");
-        ArrayList<String> photos = new ArrayList<String>();
-        File[] fList = file.listFiles();
-        if (fList != null) {
-            for (File f : fList) {
-                if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= startTimestamp.getTime()
-                        && f.lastModified() <= endTimestamp.getTime())
-                ) && (keywords == "" || f.getPath().contains(keywords))&& (location == "" || f.getPath().contains(location)))
-                    photos.add(f.getPath());
-            }
-        }
-        return photos;
-    }
-    public void scrollPhotos(View v) {
-        if (photos.size() > 0) {
-            mPhotoCity = null;
-            updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
 
-            switch (v.getId()) {
-                case R.id.btnPrev:
-                    if (index > 0) {
-                        index--;
-                    }
-                    break;
-                case R.id.btnNext:
-                    if (index < (photos.size() - 1)) {
-                        index++;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            displayPhoto(photos.get(index));
-        }
-    }
-    private void displayPhoto(String path) {
+    public void displayPhoto(Bitmap image, String[] attr) {
         ImageView iv = (ImageView) findViewById(R.id.ivGallery);
         TextView tv = (TextView) findViewById(R.id.tvTimestamp);
         TextView loc = (TextView) findViewById(R.id.tvLocation);
         EditText et = (EditText) findViewById(R.id.etCaption);
-        if (path == null || path =="") {
+        if (image == null) {
             iv.setImageResource(R.mipmap.ic_launcher);
             et.setText("");
             tv.setText("");
             loc.setText("");
         } else {
-            iv.setImageBitmap(BitmapFactory.decodeFile(path));
-            String[] attr = path.split("_");
+            iv.setImageBitmap(image);
             et.setText(attr[1]);
             tv.setText(attr[2]);
             loc.setText(attr[4]);
         }
     }
-    private File createImageFile() throws IOException {
-        // Create an image file name
 
-        getLastLocation();
-        getAddress(MainActivity.this, mLatitude,mLongitude);
-
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "_caption_" + timeStamp + "_" + mPhotoCity + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg",storageDir);
-        mCurrentPhotoPath = image.getAbsolutePath();
-
-        return image;
-    }
-
-    public void searchPhotos(View view) {
+    public void onSearchPhotos(View view) {
         Intent intent = new Intent (this, SearchActivity.class);
         startActivityForResult(intent, SEARCH_ACTIVITY_REQUEST_CODE);
     }
 
-    @SuppressWarnings("MissingPermission")
-    private void getLastLocation() {
-        fusedLocationClient.getLastLocation()
-                .addOnCompleteListener(this, new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            mLastLocation = task.getResult();
-                            mLatitude = mLastLocation.getLatitude();
-                            mLongitude = mLastLocation.getLongitude();
-                        } else {
-                            Log.w(TAG, "getLastLocation:exception", task.getException());
-                            showSnackbar(getString(R.string.no_location_detected));
-                        }
-                    }
-                });
+    public void onSharePhoto(View view) {
+        presenter.sharePhoto();
+    }
+
+    public void sharePhoto(Intent shareIntent){
+        try {
+            startActivity(Intent.createChooser(shareIntent, "Share Image"));
+        } catch (Exception e) {
+            String msg = e.toString();
+        }
+    }
+
+    public void onTakePhoto(View v){
+        presenter.takePhoto();
+    }
+
+    public void takePhoto(Intent photoIntent){
+        startActivityForResult(photoIntent, REQUEST_IMAGE_CAPTURE);
+    }
+
+    public Context getContext(){
+        return MainActivity.this;
     }
 
     private void showSnackbar(final String text) {
@@ -274,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted.
-                getLastLocation();
+                presenter.getLastLocation();
             } else {
                 // Denied
                 showSnackbar(R.string.permission_denied_explanation, R.string.settings,
@@ -296,70 +228,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void sharePhoto(View view) {
-
-        if(photos.size() > 0) {
-
-            String path = photos.get(index);
-            Intent share = new Intent(Intent.ACTION_SEND);
-            share.setType("image/jpeg");
-            share.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            Uri uri = FileProvider.getUriForFile(this, "com.example.myfirstapp.fileprovider", new File(path));
-            share.putExtra(Intent.EXTRA_STREAM, uri);
-            try {
-                startActivity(Intent.createChooser(share, "Share Image"));
-            } catch (Exception e) {
-                String msg = e.toString();
-            }
-        }
-    }
-
-    public void getAddress(Context context, double LATITUDE, double LONGITUDE) {
-        //Set Address
-        try {
-            Geocoder geocoder = new Geocoder(context, Locale.getDefault());
-            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
-            if (addresses != null && addresses.size() > 0) {
-                mPhotoCity = addresses.get(0).getLocality();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date startTimestamp, endTimestamp;
-                try {
-                    String from = (String) data.getStringExtra("STARTTIMESTAMP");
-                    String to = (String) data.getStringExtra("ENDTIMESTAMP");
-                    startTimestamp = format.parse(from);
-                    endTimestamp = format.parse(to);
-                } catch (Exception ex) {
-                    startTimestamp = null;
-                    endTimestamp = null;
-                }
-                String keywords = (String) data.getStringExtra("KEYWORDS");
-                String location = (String) data.getStringExtra("LOCATION");
-                index = 0;
-                photos = findPhotos(startTimestamp, endTimestamp, keywords, location);
-                if (photos.size() == 0) {
-                    displayPhoto(null);
-                } else {
-                    displayPhoto(photos.get(index));
-                }
+                presenter.searchPhotos(data);
             }
         }
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            ImageView mImageView = (ImageView) findViewById(R.id.ivGallery);
-            mImageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
-
-            photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
+            presenter.saveNewPhoto();
         }
     }
 }
