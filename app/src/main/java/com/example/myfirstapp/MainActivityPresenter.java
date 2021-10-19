@@ -35,11 +35,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
 public class MainActivityPresenter {
+    //private ArrayList<PhotoFileModel> photos = null; //Model
     private ArrayList<PhotoFileModel> photos = null; //Model
+    private Stream<PhotoFileModel> photoStream = null;
     private MainActivityView view;
     private int index = 0;
     private String mPhotoCity;
@@ -54,7 +57,8 @@ public class MainActivityPresenter {
     private FusedLocationProviderClient fusedLocationClient;
     public MainActivityPresenter(MainActivityView view) {
         this.view = view;
-        this.photos = PhotoFileModel.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
+        this.photos = PhotoFileModel.findArrayPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
+
         if (photos.size() == 0) {
             view.displayPhoto(null, null);
         } else {
@@ -63,6 +67,11 @@ public class MainActivityPresenter {
         }
         //this.stream = load all photos from device
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(view.getContext());
+    }
+
+    //convert list to stream
+    private static <T> Stream<T> listToStream (List<T> list) {
+        return list.stream();
     }
 
     public void takePhoto() {
@@ -88,7 +97,7 @@ public class MainActivityPresenter {
         String[] attr = mCurrentPhotoPath.split("_");
         view.displayPhoto(BitmapFactory.decodeFile(mCurrentPhotoPath), attr);
 
-        photos = PhotoFileModel.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
+        photos = PhotoFileModel.findArrayPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
     }
 
 
@@ -160,6 +169,7 @@ public class MainActivityPresenter {
     public void searchPhotos(Intent data){
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date startTimestamp, endTimestamp;
+
         try {
             String from = (String) data.getStringExtra("STARTTIMESTAMP");
             String to = (String) data.getStringExtra("ENDTIMESTAMP");
@@ -169,17 +179,31 @@ public class MainActivityPresenter {
             startTimestamp = null;
             endTimestamp = null;
         }
+
         String keywords = (String) data.getStringExtra("KEYWORDS");
         String location = (String) data.getStringExtra("LOCATION");
-        index = 0;
-        photos = PhotoFileModel.findPhotos(startTimestamp, endTimestamp, keywords, location);
-        if (photos.size() == 0) {
-            view.displayPhoto(null, null);
-        } else {
-            PhotoFileModel photo = photos.get(index);
+
+        //index = 0;
+        photoStream = listToStream(photos);
+
+        try
+        {
+            photoStream = PhotoFileModel.findPhotos(startTimestamp, endTimestamp, keywords, location);
+            Optional<PhotoFileModel> photo1 = photoStream.findFirst();
+            PhotoFileModel photo = photo1.get();
             view.displayPhoto(photo.getBitmap(), photo.getAttributes());
         }
+        catch(Exception e)
+        {
+
+            view.displayPhoto(null, null);
+
+        }
+
+
     }
+
+
 
     public void getAddress(double LATITUDE, double LONGITUDE) {
         Context context = view.getContext();
