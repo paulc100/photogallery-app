@@ -89,7 +89,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
         }
     }
 
-    public void onScrollPhotos(View v) {
+    public void onScrollPhotos(View v)
+    {
         presenter.scrollPhotos(v.getId() == R.id.btnNext);
     }
 

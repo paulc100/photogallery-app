@@ -45,6 +45,7 @@ public class MainActivityPresenter {
     private MainActivityView view;
     private int index = 0;
     private String mPhotoCity;
+    private photoInterface  photoInt = new photoInterface();
 
     String mCurrentPhotoPath;
 
@@ -52,6 +53,7 @@ public class MainActivityPresenter {
     protected Location mLastLocation;
     private double mLatitude;
     private double mLongitude;
+
 
     private FusedLocationProviderClient fusedLocationClient;
     public MainActivityPresenter(MainActivityView view) {
@@ -71,6 +73,16 @@ public class MainActivityPresenter {
     //convert list to stream
     private static <T> Stream<T> listToStream (List<T> list) {
         return list.stream();
+    }
+
+    public void scrollPhotos(Boolean forward) {photoInt.scrollPhotos(view, forward, photos, index, mPhotoCity);}
+
+    public void searchPhotos(Intent data) {photoInt.searchPhotos(data, photos, view);}
+
+    public void updatePhoto(String caption)
+    {
+        getLastLocation();
+        photoInt.updatePhoto(caption, photos, index, mLastLocation.toString());
     }
 
     public void takePhoto() {
@@ -116,23 +128,7 @@ public class MainActivityPresenter {
         return image;
     }
 
-    public void updatePhoto(String caption) {
-        PhotoFileModel photo = photos.get(index);
-        String path = photo.path;
-        String[] attr = path.split("_");
-        if (attr.length >= 3) {
-            String newCaption;
-            if (mLastLocation != null) {
-                newCaption = attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3] + "_" + attr[4] + "_";
-            } else {
-                newCaption = attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3] + "_" + "NoLocation" + "_";
-            }
-            File to = new File(newCaption);
-            File from = new File(path);
-            from.renameTo(to);
-            photo.path = newCaption;
-        }
-    }
+
 
     public void sharePhoto() {
 
@@ -148,57 +144,7 @@ public class MainActivityPresenter {
         }
     }
 
-    public void scrollPhotos(Boolean forward) {
-        if (photos.size() > 0) {
-            mPhotoCity = null;
-            if(forward){
-                if (index < (photos.size() - 1)) {
-                    index++;
-                }
-            }else{
-                if (index > 0) {
-                    index--;
-                }
-            }
-            PhotoFileModel photo = photos.get(index);
-            view.displayPhoto(photo.getBitmap(), photo.getAttributes());
-        }
-    }
 
-    public void searchPhotos(Intent data){
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date startTimestamp, endTimestamp;
-
-        try {
-            String from = (String) data.getStringExtra("STARTTIMESTAMP");
-            String to = (String) data.getStringExtra("ENDTIMESTAMP");
-            startTimestamp = format.parse(from);
-            endTimestamp = format.parse(to);
-        } catch (Exception ex) {
-            startTimestamp = null;
-            endTimestamp = null;
-        }
-
-        String keywords = (String) data.getStringExtra("KEYWORDS");
-        String location = (String) data.getStringExtra("LOCATION");
-
-        //index = 0;
-
-        try
-        {
-            photos = GalleryItemFactory.findPhotos(startTimestamp, endTimestamp, keywords, location);
-            PhotoFileModel photo = photos.get(0);
-            view.displayPhoto(photo.getBitmap(), photo.getAttributes());
-        }
-        catch(Exception e)
-        {
-
-            view.displayPhoto(null, null);
-
-        }
-
-
-    }
 
 
 
