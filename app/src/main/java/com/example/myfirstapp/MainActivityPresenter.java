@@ -56,7 +56,7 @@ public class MainActivityPresenter {
     private FusedLocationProviderClient fusedLocationClient;
     public MainActivityPresenter(MainActivityView view) {
         this.view = view;
-        this.photos = PhotoFileModel.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
+        this.photos = GalleryItemFactory.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
 
         if (photos.size() == 0) {
             view.displayPhoto(null, null);
@@ -96,7 +96,7 @@ public class MainActivityPresenter {
         String[] attr = mCurrentPhotoPath.split("_");
         view.displayPhoto(BitmapFactory.decodeFile(mCurrentPhotoPath), attr);
 
-        photos = PhotoFileModel.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
+        photos = GalleryItemFactory.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
     }
 
 
@@ -186,8 +186,8 @@ public class MainActivityPresenter {
 
         try
         {
-            photos = PhotoFileModel.findPhotos(startTimestamp, endTimestamp, keywords, location);
-            PhotoFileModel photo = photos[0];
+            photos = GalleryItemFactory.findPhotos(startTimestamp, endTimestamp, keywords, location);
+            PhotoFileModel photo = photos.get(0);
             view.displayPhoto(photo.getBitmap(), photo.getAttributes());
         }
         catch(Exception e)
