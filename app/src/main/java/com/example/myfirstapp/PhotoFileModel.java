@@ -24,33 +24,9 @@ public class PhotoFileModel {
         this.path = path;
     }
 
-    //This can be replaced with the creational design pattern
-    public static Stream<PhotoFileModel> findPhotos(Date startTimestamp, Date endTimestamp, String keywords, String location) {
 
-        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "/Android/data/com.example.myfirstapp/files/Pictures");
-
-        Stream<PhotoFileModel> photos = null;
-
-        File[] fList = file.listFiles();
-        if (fList != null)
-        {
-            for (File f : fList)
-            {
-                if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= startTimestamp.getTime() && f.lastModified() <= endTimestamp.getTime())) && (keywords == "" || f.getPath().contains(keywords)) && (location == "" || f.getPath().contains(location)))
-                {
-                    //Just in case a stream needs to be initialized, use this to set a value when first discovering a new file
-                    if(photos.count() == 0){}
-                    else{}
-                    photos = Stream.concat(photos, Stream.of(new PhotoFileModel(f.getPath())));
-
-                }
-            }
-        }
-        return photos;
-    }
-
-    //This can be replaced with the creational design pattern
-    public static ArrayList<PhotoFileModel> findArrayPhotos(Date startTimestamp, Date endTimestamp, String keywords, String location) {
+    //Get array list of photos that contains photos filtered based on timestamps, keywords and location data. This is filtered through the Stream API.
+    public static ArrayList<PhotoFileModel> findPhotos(Date startTimestamp, Date endTimestamp, String keywords, String location) {
 
         File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "/Android/data/com.example.myfirstapp/files/Pictures");
 
@@ -59,15 +35,9 @@ public class PhotoFileModel {
         File[] fList = file.listFiles();
         if (fList != null)
         {
-            for (File f : fList)
-            {
-                if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= startTimestamp.getTime() && f.lastModified() <= endTimestamp.getTime())) && (keywords == "" || f.getPath().contains(keywords)) && (location == "" || f.getPath().contains(location)))
-                {
+            flist.stream.filter(file -> file.lastModified() >= startTimestamp.getTime() || startTimestamp == null).filter(file -> file.lastModified() <= endTimestamp.getTime() || endTimestamp == null).filter(file -> file.getPath().contains(keywords) || keywords = "").filter(file -> file.getPath().contains(location) || location == "")
+            .foreach(file -> photos.add(new PhotoFileModel(file.getPath)));
 
-                    photos.add(new PhotoFileModel(f.getPath()));
-
-                }
-            }
         }
         return photos;
     }
