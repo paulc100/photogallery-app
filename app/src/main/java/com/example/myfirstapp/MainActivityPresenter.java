@@ -42,7 +42,6 @@ import java.util.stream.Stream;
 public class MainActivityPresenter {
     //private ArrayList<PhotoFileModel> photos = null; //Model
     private ArrayList<PhotoFileModel> photos = null; //Model
-    private Stream<PhotoFileModel> photoStream = null;
     private MainActivityView view;
     private int index = 0;
     private String mPhotoCity;
@@ -57,7 +56,7 @@ public class MainActivityPresenter {
     private FusedLocationProviderClient fusedLocationClient;
     public MainActivityPresenter(MainActivityView view) {
         this.view = view;
-        this.photos = PhotoFileModel.findArrayPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
+        this.photos = PhotoFileModel.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
 
         if (photos.size() == 0) {
             view.displayPhoto(null, null);
@@ -97,7 +96,7 @@ public class MainActivityPresenter {
         String[] attr = mCurrentPhotoPath.split("_");
         view.displayPhoto(BitmapFactory.decodeFile(mCurrentPhotoPath), attr);
 
-        photos = PhotoFileModel.findArrayPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
+        photos = PhotoFileModel.findPhotos(new Date(Long.MIN_VALUE), new Date(), "", "");
     }
 
 
@@ -184,13 +183,11 @@ public class MainActivityPresenter {
         String location = (String) data.getStringExtra("LOCATION");
 
         //index = 0;
-        photoStream = listToStream(photos);
 
         try
         {
-            photoStream = PhotoFileModel.findPhotos(startTimestamp, endTimestamp, keywords, location);
-            Optional<PhotoFileModel> photo1 = photoStream.findFirst();
-            PhotoFileModel photo = photo1.get();
+            photos = PhotoFileModel.findPhotos(startTimestamp, endTimestamp, keywords, location);
+            PhotoFileModel photo = photos[0];
             view.displayPhoto(photo.getBitmap(), photo.getAttributes());
         }
         catch(Exception e)
