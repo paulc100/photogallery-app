@@ -26,7 +26,10 @@ public class GalleryItemFactory {
         File[] fList = file.listFiles();
         if (fList != null)
         {
-            Arrays.stream(fList).filter(f -> f.lastModified() >= startTimestamp.getTime() || startTimestamp == null).filter(f -> f.lastModified() <= endTimestamp.getTime() || endTimestamp == null).filter(f -> f.getPath().contains(keywords) || keywords == "").filter(f -> f.getPath().contains(location) || location == "")
+            Arrays.stream(fList).filter(f -> f.lastModified() >= startTimestamp.getTime() || startTimestamp == null)
+                    .filter(f -> f.lastModified() <= endTimestamp.getTime() || endTimestamp == null)
+                    .filter(f -> f.getPath().contains(keywords) || keywords == "")
+                    .filter(f -> f.getPath().contains(location) || location == "")
                     .forEach(f -> photos.add((PhotoFileModel) GalleryItemFactory.CreateGalleryItem(f.getPath())));
 
         }
